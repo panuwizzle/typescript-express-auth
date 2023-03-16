@@ -1,11 +1,17 @@
-import { Schema, model } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
-interface IUser {
+export interface IUser extends Document {
   email: string;
   password: string;
   verified: boolean;
   refreshToken: string;
 }
+
+export interface IUserRequestBody {
+  email: string;
+  password: string;
+}
+
 const userSchema = new Schema<IUser>({
   email: {
     type: String,
@@ -25,6 +31,9 @@ const userSchema = new Schema<IUser>({
   }
 })
 
-const User = model<IUser>('User', userSchema)
+export async function createNewUser(userData: IUserRequestBody): Promise<IUser> {
+  const user = new User(userData);
+  return user.save();
+}
 
-export { User }
+export const User = model<IUser>('User', userSchema)

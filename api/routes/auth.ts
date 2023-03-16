@@ -1,13 +1,13 @@
 import Router, { Request, Response } from 'express'
 import { compare, genSalt, hash } from 'bcryptjs'
 import { verify } from 'jsonwebtoken'
-import { User } from '../models/user'
+import { User, createNewUser, IUserRequestBody } from '../models/user'
 import { createAccessToken, createRefreshToken, sendAccessToken, sendRefreshToken } from '../utils/token'
 import { AuthorizedRequest, protectedRoute } from '../utils/protected'
 
 export const authRouter = Router()
 
-authRouter.post('/signup', async (req: Request, res: Response) => {
+authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: Response) => {
   try {
     const { email, password } = req.body;
     console.log(email, password)
@@ -23,12 +23,13 @@ authRouter.post('/signup', async (req: Request, res: Response) => {
     const salt = await genSalt(10)
     const passwordHash = await hash(password, salt)
 
-    const newUser = new User({
+    const newUser = createNewUser({
       email: email,
       password: passwordHash
     })
+
     console.log(newUser)
-    await newUser.save()
+
     res.status(200).json({
       message: "User created successfully",
       type: 'success'
@@ -80,7 +81,7 @@ authRouter.post('/signin', async (req: Request, res: Response) => {
   }
 })
 
-authRouter.post('/logout', (req: Request, res: Response) => {
+authRouter.post('/signout', (req: Request, res: Response) => {
   res.clearCookie('refreshToken')
   return res.json({
     message: "Logged out successfully",
@@ -149,6 +150,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
   }
 })
 
+// sameple route with protectedRoute middleware
 authRouter.get('/protected', protectedRoute, async (req: AuthorizedRequest, res: Response) => {
   try {
     if (req.user) {
