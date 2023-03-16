@@ -44,7 +44,7 @@ authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: R
   }
 })
 
-authRouter.post('/signin', async (req: Request, res: Response) => {
+authRouter.post('/signin', async (req: Request<{}, {}, IUserRequestBody>, res: Response) => {
   try {
     const { email, password } = req.body
     const user = await User.findOne({ email: email })

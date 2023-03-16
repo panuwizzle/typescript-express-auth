@@ -1,7 +1,7 @@
 {
-  "name": "api",
+  "name": "express-auth-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lab project to learn typescript express jwt authentication",
   "main": "index.ts",
   "scripts": {
     "build": "npx tsc",
