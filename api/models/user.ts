@@ -1,6 +1,12 @@
 import { Schema, model } from "mongoose";
 
-const userSchema = new Schema({
+interface IUser {
+  email: string;
+  password: string;
+  verified: boolean;
+  refreshToken: string;
+}
+const userSchema = new Schema<IUser>({
   email: {
     type: String,
     require: true,
@@ -19,6 +25,6 @@ const userSchema = new Schema({
   }
 })
 
-const User = model('User', userSchema)
+const User = model<IUser>('User', userSchema)
 
 export { User }
