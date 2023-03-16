@@ -1,7 +1,7 @@
 import Router, { Request, Response } from 'express'
-import { compare, genSalt, hash } from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import { verify } from 'jsonwebtoken'
-import { User, createNewUser, IUserRequestBody } from '../models/user'
+import { User, IUserRequestBody } from '../models/user'
 import { createAccessToken, createRefreshToken, sendAccessToken, sendRefreshToken } from '../utils/token'
 import { AuthorizedRequest, protectedRoute } from '../utils/protected'
 
@@ -10,7 +10,6 @@ export const authRouter = Router()
 authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: Response) => {
   try {
     const { email, password } = req.body;
-    console.log(email, password)
 
     const user = await User.findOne({ email: email })
 
@@ -20,26 +19,22 @@ authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: R
         type: "warning"
       })
     }
-    const salt = await genSalt(10)
-    const passwordHash = await hash(password, salt)
 
-    const newUser = createNewUser({
+    const newUser = new User({
       email: email,
-      password: passwordHash
+      password: password
     })
+    await newUser.save()
 
-    console.log(newUser)
-
-    res.status(200).json({
+    res.status(201).json({
       message: "User created successfully",
-      type: 'success'
+      type: 'success',
+      data: { email: newUser.email }
     })
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({
+  } catch (error: any) {
+    res.status(400).json({
       type: "error",
-      message: "Error creating user",
-      error,
+      message: error.message,
     })
   }
 })

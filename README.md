@@ -16,3 +16,24 @@ npm run dev
 ```
 
 The server will serve at http://localhost:8000
+
+## Mongodb migration
+```
+use authy;
+db.createUser({
+  user: "authy",
+  pwd: "abcd1234",
+  roles: [
+    { role: "readWrite", db: "authy" }
+  ]
+});
+
+use authytest;
+db.createUser({
+  user: "authy",
+  pwd: "abcd1234",
+  roles: [
+    { role: "readWrite", db: "authytest" }
+  ]
+})
+```
