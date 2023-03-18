@@ -11,6 +11,7 @@ authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: R
   try {
     const { email, password } = req.body;
 
+    // tslint:disable-next-line:await-promise
     const user = await User.findOne({ email: email })
 
     if (user) {
@@ -42,6 +43,8 @@ authRouter.post('/signup', async (req: Request<{}, {}, IUserRequestBody>, res: R
 authRouter.post('/signin', async (req: Request<{}, {}, IUserRequestBody>, res: Response) => {
   try {
     const { email, password } = req.body
+
+    // tslint:disable-next-line:await-promise
     const user = await User.findOne({ email: email })
     if (!user) {
       return res.status(500).json({
@@ -50,7 +53,7 @@ authRouter.post('/signin', async (req: Request<{}, {}, IUserRequestBody>, res: R
       })
     }
 
-    const isMatch = compare(password, user.password!)
+    const isMatch = compare(password, user.password)
 
     if (!isMatch) {
       return res.status(500).json({
@@ -111,6 +114,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response) => {
       })
     }
 
+    // tslint:disable-next-line:await-promise
     const user = await User.findById(id)
     if (!user) {
       return res.status(500).json({
