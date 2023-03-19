@@ -4,7 +4,7 @@ import { sign } from 'jsonwebtoken'
 // signing the access token
 export const createAccessToken = (id: string) => {
   return sign({ id }, process.env.ACCESS_TOKEN_SECRET || 'very-secret-token', {
-    expiresIn: 60 * 60
+    expiresIn: 15 * 60
   })
 }
 
