@@ -11,9 +11,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-/*
-connectDB().then(() => {
-  startServer();
-})
-*/

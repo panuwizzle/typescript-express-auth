@@ -1,5 +1,6 @@
 import { Response, Request } from 'express'
 import { sign } from 'jsonwebtoken'
+import { IUser } from 'models/user'
 
 // signing the access token
 export const createAccessToken = (id: string) => {
@@ -28,3 +29,11 @@ export const sendRefreshToken = (res: Response, refreshToken: string) => {
     httpOnly: true
   })
 }
+
+// password reset token
+export const createPasswordResetToken = (user: IUser) => {
+  const secret = user.password
+  return sign({ id: user._id, email: user.email }, secret, {
+    expiresIn: 15 * 60, // 15 minutes
+  });
+};

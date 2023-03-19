@@ -1,8 +1,9 @@
 import Router, { Request, Response } from 'express'
-import { compare } from 'bcryptjs'
+import { compare, hash } from 'bcryptjs'
 import { verify } from 'jsonwebtoken'
 import { User, IUserRequestBody } from '../models/user'
-import { createAccessToken, createRefreshToken, sendAccessToken, sendRefreshToken } from '../utils/token'
+import { createAccessToken, createRefreshToken, sendAccessToken, sendRefreshToken, createPasswordResetToken, } from '../utils/token'
+import { createPasswordResetUrl, passwordResetTemplate, transporter, passwordResetConfirmationTemplate } from '../utils/email'
 import { AuthorizedRequest, protectedRoute } from '../utils/protected'
 
 export const authRouter = Router()
@@ -171,3 +172,91 @@ authRouter.get('/protected', protectedRoute, async (req: AuthorizedRequest, res:
     })
   }
 })
+
+// send password reset email
+authRouter.post("/send-password-reset-email", async (req: AuthorizedRequest, res: Response) => {
+  try {
+    // get the user from the request body
+    const { email } = req.body;
+    // find the user by email
+    const user = await User.findOne({ email });
+    // if the user doesn't exist, return error
+    if (!user)
+      return res.status(500).json({
+        message: "User doesn't exist! 😢",
+        type: "error",
+      });
+    // create a password reset token
+    const token = createPasswordResetToken(user);
+    // create the password reset url
+    const url = createPasswordResetUrl(user._id, token);
+    // send the email
+    const mailOptions = passwordResetTemplate(user, url);
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err)
+        return res.status(500).json({
+          message: "Error sending email! 😢",
+          type: "error",
+        });
+      return res.json({
+        message: "Password reset link has been sent to your email! 📧",
+        type: "success",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      type: "error",
+      message: "Error sending email!",
+      error,
+    });
+  }
+});
+
+// reset password
+authRouter.post("/reset-password/:id/:token", async (req: AuthorizedRequest, res: Response) => {
+  try {
+    // get the user details from the url
+    const { id, token } = req.params;
+    // get the new password the request body
+    const { newPassword } = req.body;
+    // find the user by id
+    const user = await User.findById(id);
+    // if the user doesn't exist, return error
+    if (!user)
+      return res.status(500).json({
+        message: "User doesn't exist! 😢",
+        type: "error",
+      });
+    // verify if the token is valid
+    const isValid = verify(token, user.password);
+    // if the password reset token is invalid, return error
+    if (!isValid)
+      return res.status(500).json({
+        message: "Invalid token! 😢",
+        type: "error",
+      });
+    // set the user's password to the new password
+    user.password = await hash(newPassword, 10);
+    // save the user
+    await user.save();
+    // send the email
+    const mailOptions = passwordResetConfirmationTemplate(user);
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err)
+        return res.status(500).json({
+          message: "Error sending email! 😢",
+          type: "error",
+        });
+      return res.json({
+        message: "Email sent! 📧",
+        type: "success",
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      type: "error",
+      message: "Error sending email!",
+      error,
+    });
+  }
+});
