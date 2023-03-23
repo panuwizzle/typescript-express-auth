@@ -1,4 +1,5 @@
 import express from 'express';
+
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { routes } from './routes'
@@ -7,7 +8,7 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from './swagger.json'
 
 let options = {
-  explorer: true
+  explorer: true,
 };
 
 dotenv.config();
