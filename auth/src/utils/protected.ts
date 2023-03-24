@@ -3,7 +3,7 @@ import { verify } from "jsonwebtoken";
 
 import { User } from '../models/user'
 
-export interface AuthorizedRequest extends Request {
+export interface IAuthorizedRequest extends Request {
   user?: object
 }
 interface ITokenPayload {
@@ -11,7 +11,7 @@ interface ITokenPayload {
   iat: number;
   exp: number;
 }
-export const protectedRoute = async (req: AuthorizedRequest, res: Response, next: NextFunction) => {
+export const protectedRoute = async (req: IAuthorizedRequest, res: Response, next: NextFunction) => {
   const authorization = req.headers['authorization']
   if (!authorization) {
     return res.status(500).json({
