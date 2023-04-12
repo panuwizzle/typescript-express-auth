@@ -1,25 +1,30 @@
-import express from 'express';
+import express, { Application } from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from "cors"
 import { routes } from './routes'
 import { logMiddleware } from './utils/logs'
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from './swagger.json'
 
+// configuration
 let options = {
   explorer: true
 };
-
 dotenv.config();
 
-const app = express();
+// boot express
+const app: Application = express();
 
+// middlewares
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(logMiddleware)
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options))
 
+// routes
 app.use('/', routes)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options))
 
 export default app
