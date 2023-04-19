@@ -39,12 +39,26 @@ todoSchema.pre('save', async function (next) {
 
 export const Todo = model<ITodo>('Todo', todoSchema)
 
-export const listTodo = () => {
+// Model method
+export const listTodo = async () => {
+  // list todo 
+  try {
+    const todos = await Todo.find()
+    return todos
+  } catch (error) {
+    throw error
 
+  }
 }
 
-export const getTodoByID = (id: string) => {
+export const getTodoByID = async (id: string) => {
+  try {
+    const todo = await Todo.findById(id)
+    return todo
 
+  } catch (error) {
+    throw error
+  }
 }
 
 export const createTodo = async (todo: ITodoRequestBody) => {
