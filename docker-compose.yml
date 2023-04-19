@@ -8,12 +8,14 @@ services:
     container_name: express-auth-service
     build:
       context: ./auth
-      target: production
+      target: dev
     ports:
       - 3000:3000
     environment:
-      - MONGODB_URI=mongodb://authy:abcd1234@express-auth-service-nosql:27017/authy
+      - MONGODB_URI=mongodb://authuser:authpassword@express-auth-service-nosql:27017/authy
       - PORT=3000
+      - ACCESS_TOKEN_SECRET=accessToKenSecret
+      - REFRESH_TOKEN_SECRET=refreshToKenSecret
     networks:
       - lab-network
 
@@ -23,9 +25,14 @@ services:
     ports:
       - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: authy
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+      - MONGO_INITDB_DATABASE=authy
+      - MONGO_INITDB_USERNAME=authuser
+      - MONGO_INITDB_PASSWORD=authpassword
+    volumes:
+      - ./mongo/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+      - ./mongo/db:/data/db
     networks:
       - lab-network
 
