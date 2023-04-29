@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
-const LoginForm = () => {
+const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("authToken"));
+  const { state, dispatch } = useAuth();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
@@ -25,8 +26,8 @@ const LoginForm = () => {
       }
 
       const data = await response.json();
-      localStorage.setItem("authToken", data.accessToken);
-      setIsLoggedIn(true);
+      console.log(data)
+      dispatch({ type: "LOGIN", payload: data.accessToken });
 
       // Do something with the auth token (e.g. redirect to another page)
 
@@ -36,12 +37,11 @@ const LoginForm = () => {
   };
 
   const handleSignout = () => {
-    localStorage.removeItem("authToken");
-    setIsLoggedIn(false);
+    dispatch({ type: "LOGOUT" });
     // Do something to clear the authenticated state (e.g. redirect to login page)
   };
 
-  return isLoggedIn ? (
+  return state.isAuthenticated ? (
     <button onClick={handleSignout}>Sign Out</button>
   ) : (
     <form onSubmit={handleSubmit}>
@@ -58,4 +58,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export {  LoginForm };
